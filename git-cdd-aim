@@ -14,9 +14,8 @@ usage() {
 
 further_usage() {
   if [ -n "$1" ]; then
-      echo " "
-      echo "commit \"$1\" started"
-      echo " "
+      echo "Commit started:"
+      echo "\"$1\""
       echo "Next steps:"
       echo " "
   fi
@@ -27,7 +26,7 @@ further_usage() {
 
 cmd_aim() {
   if [ -e "$CDD_COMMIT_MSG" ]; then
-    echo "Previous commit message exist."
+    echo "A previous commit message exist."
     echo " "
     further_usage ""
     echo " "
