@@ -1,0 +1,27 @@
+#!/usr/bin/env sh
+
+. cdd-shared
+
+usage() {
+  echo "git cdd amend"
+  echo " "
+  echo "Update the commit message to reflect changes in scope."
+}
+
+cmd_amend() {
+  if [ ! -e "$CDD_COMMIT_MSG" ]; then
+    echo "No commit message to delete."
+    echo " "
+    echo "Create on with git cdd aim."
+    exit 1
+  fi
+
+  check_msg
+
+  export editor
+  get_editor
+  "$editor" "$CDD_COMMIT_MSG"
+  unset editor
+
+  exit 0
+}

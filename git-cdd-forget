@@ -1,0 +1,43 @@
+#!/usr/bin/env sh
+
+. cdd-shared
+
+usage() {
+  echo "git cdd forget"
+  echo " "
+  echo "Remove commit message."
+  echo " "
+  echo "options:"
+  echo "--force"
+  echo "    also remove tracked and uncommitted changes"
+  echo "--clean"
+  echo "    also remove untracked files and directories"
+}
+
+cmd_forget() {
+  if [ ! -e "$CDD_COMMIT_MSG" ]; then
+    echo "No commit message to delete."
+    exit 1
+  fi
+
+  check_msg
+
+  cd "$(git rev-parse --show-toplevel)" || exit 1
+
+  while test $# -gt 0; do
+    case "$1" in
+    "--force")
+      git reset --hard
+      ;;
+    "--clean")
+      git clean -fd
+      ;;
+    *)
+      echo "unknown option"
+      ;;
+    esac
+    shift
+  done
+
+  rm "$CDD_COMMIT_MSG"
+}

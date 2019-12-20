@@ -1,0 +1,25 @@
+#!/usr/bin/env sh
+
+. cdd-shared
+
+usage() {
+  echo "git cdd status"
+  echo " "
+  echo "Get git status and additionally get the CDD status."
+  echo "This passes all options through to git status."
+  echo " "
+  echo "Check git status -h for more information."
+}
+
+cmd_status() {
+  if [ ! -e "$CDD_COMMIT_MSG" ]; then
+    echo "No commit message found."
+  else
+    echo "Commit in progress:"
+    echo " "
+    grep "^[^#]" "$CDD_COMMIT_MSG"
+  fi
+  echo " "
+
+  git status "$@"
+}

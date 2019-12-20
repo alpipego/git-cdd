@@ -1,0 +1,59 @@
+#!/usr/bin/env sh
+
+version() {
+  echo "commit driven development git plugin v0.1.0"
+  echo
+}
+
+main_usage() {
+  echo "git cdd <subcommand>"
+  echo " "
+  echo "Available subcommands are:"
+  echo "  aim     Setup commit message."
+  echo "  amend   Change commit message prior to committing changes."
+  echo "  fire    Commit changes with the current message."
+  echo "  forget  Remove commit message."
+}
+
+main() {
+  setup
+
+  if [ "$#" -lt 1 ]; then
+    main_usage
+    exit 1
+  fi
+
+  subcommand="$1"
+  shift
+
+  case $subcommand in
+  "-h" | "--help")
+    main_usage
+    exit 0
+    ;;
+  "-v" | "--version")
+    version
+    exit 0
+    ;;
+  esac
+
+  workingdir=$(dirname "$(echo "$0" | sed -e 's,\\,/,g')")
+  if [ ! -e "$workingdir/git-cdd-$subcommand" ]; then
+    main_usage
+    exit 1
+  fi
+
+  # shellcheck source=/dev/null
+  . "$workingdir/git-cdd-$subcommand"
+
+  "cmd_$subcommand" "$@"
+}
+
+setup() {
+  global_ignore=$(git config --global core.excludesfile)
+  if ! grep -q "^CDD_COMMIT_MSG" "$global_ignore"; then
+    printf "\nCDD_COMMIT_MSG\n" >>"$global_ignore"
+  fi
+}
+
+main "$@"

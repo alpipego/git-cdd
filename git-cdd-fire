@@ -1,0 +1,62 @@
+#!/usr/bin/env sh
+
+. cdd-shared
+
+usage() {
+  echo "git cdd fire"
+  echo " "
+  echo "Commit your changes."
+  echo " "
+  echo "This passes all options through to git commit, except:"
+  echo " "
+  echo "-F, --file <file>"
+  echo "-m, --message <message>"
+  echo "-c, --reedit-message <commit>"
+  echo "-C, --reuse-message <commit>"
+  echo " "
+  echo "Check git commit -h for more information."
+}
+
+cmd_fire() {
+  if [ ! -e "$CDD_COMMIT_MSG" ]; then
+    echo "No commit message found."
+    echo " "
+    echo "Start your commit with git cdd aim or use the default git commit."
+    exit 1
+  fi
+
+  check_msg
+
+  value=false
+  for arg; do
+    if [ "$arg" = "--" ]; then
+      break
+    fi
+    case $arg in
+    -m | --message | --message=* | -F | --file | --file=* | -c | --reedit-message | --reedit-message=* | -C | --reuse-message |    reuse-message=* )
+      value=true
+      ;;
+    -*)
+      set -- "$@" "$arg"
+      value=false
+      ;;
+    *)
+      if [ $value != true ]; then
+        set -- "$@" "$arg"
+      fi
+      echo "$arg"
+      value=false
+      ;;
+    esac
+    shift
+  done
+
+  export editor
+  get_editor
+  "$editor" "$CDD_COMMIT_MSG"
+  unset editor
+
+  git commit -F "$CDD_COMMIT_MSG" "$@"
+
+  rm "$CDD_COMMIT_MSG"
+}

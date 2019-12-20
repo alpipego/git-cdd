@@ -1,0 +1,84 @@
+#!/usr/bin/env sh
+
+. cdd-shared
+
+usage() {
+  echo "git cdd aim"
+  echo " "
+  echo "Setup a commit message."
+  echo " "
+  echo "options:"
+  echo "-m, --message <message>"
+  echo "    commit message"
+}
+
+further_usage() {
+  if [ -n "$1" ]; then
+      echo " "
+      echo "commit \"$1\" started"
+      echo " "
+      echo "Next steps:"
+      echo " "
+  fi
+  echo "  amend   Change commit message prior to committing changes."
+  echo "  fire    Commit changes with the current message."
+  echo "  forget  Remove commit message."
+}
+
+cmd_aim() {
+  if [ -e "$CDD_COMMIT_MSG" ]; then
+    echo "Previous commit message exist."
+    echo " "
+    further_usage ""
+    echo " "
+    echo "Or manually delete $CDD_COMMIT_MSG"
+    exit 1
+  fi
+
+  if [ "$#" -lt 1 ]; then
+      open_editor; exit 0
+  fi
+
+  flag="$1"; shift
+  case $flag in
+    "-m"|"--message")
+      if [ -z "$1" ]; then
+          open_editor; exit 0
+      fi
+      write_message "$1"; exit 0
+      ;;
+    *)
+      usage; exit 1
+      ;;
+  esac
+}
+
+open_editor() {
+  touch "$CDD_COMMIT_MSG"
+  printf "\n\n# If applied, this commit will…" > "$CDD_COMMIT_MSG"
+
+  export editor
+  get_editor
+  "$editor" "$CDD_COMMIT_MSG"
+  if [ ! -s "$CDD_COMMIT_MSG" ]; then
+      rm "$CDD_COMMIT_MSG"
+      echo " "
+      echo "Please add a commit message to start with."
+      echo " "
+      exit 1
+  fi
+  unset editor
+
+  further_usage "$(grep "^[^#]" "$CDD_COMMIT_MSG")"
+}
+
+write_message() {
+  if [ "$#" -lt 1 ] || [ -z "$1" ]; then
+      cmd_aim "$@"; exit 0
+  fi
+
+  touch "$CDD_COMMIT_MSG"
+  echo "$1" > "$CDD_COMMIT_MSG"
+  further_usage "$1"
+  exit 0
+}

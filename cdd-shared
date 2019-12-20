@@ -1,0 +1,42 @@
+#!/usr/bin/env sh
+
+export CDD_COMMIT_MSG
+CDD_COMMIT_MSG=$(git rev-parse --show-toplevel)/CDD_COMMIT_MSG
+
+get_editor() {
+  editor=$(git config core.editor)
+  if [ -z "$editor" ]; then
+    editor=$GIT_EDITOR
+    if [ -z "$editor" ]; then
+      # shellcheck disable=2153
+      editor=${EDITOR:-vi}
+      if [ -z "$editor" ]; then
+        editor=/usr/bin/editor
+        if [ -z "$editor" ]; then
+          echo "Could not find an editor."
+          echo "Please specify an editor for git, e.g."
+          echo "git config --global core.editor /usr/bin/editor"
+          exit 1
+        fi
+      fi
+    fi
+  fi
+}
+
+check_msg() {
+  if [ ! -f "$CDD_COMMIT_MSG" ]; then
+    echo "$CDD_COMMIT_MSG is not a regular file."
+    exit 1
+  fi
+
+  if [ ! -w "$CDD_COMMIT_MSG" ]; then
+    echo "$CDD_COMMIT_MSG exists but is not writable."
+    exit 1
+  fi
+
+  if [ ! -r "$CDD_COMMIT_MSG" ]; then
+    echo "$CDD_COMMIT_MSG exists but is not readable."
+    exit 1
+  fi
+
+}
