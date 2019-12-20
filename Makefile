@@ -5,6 +5,7 @@ COMMANDS += git-cdd-amend
 COMMANDS += git-cdd-fire
 COMMANDS += git-cdd-forget
 COMMANDS += git-cdd-status
+COMMANDS += cdd-shared
 
 all:
 	@echo "usage: make [install|uninstall]"
